@@ -2439,7 +2439,7 @@ function exportCSV(){
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);const a=document.createElement('a');
   const m=document.getElementById('export-filter-month')?.value||'all';
-  a.href=url; a.download=`ing-finance-${exportDateLabel()}.csv`; a.click(); URL.revokeObjectURL(url);
+  a.href=url; a.download=`Pen-finance-${exportDateLabel()}.csv`; a.click(); URL.revokeObjectURL(url);
   showToast(`Exported ${data.length} entries ✓`);
   if(driveConnected){ saveCSVToDrive(csv, m).then(()=>showToast('CSV saved to Drive ✓')).catch(()=>{}); }
 }
