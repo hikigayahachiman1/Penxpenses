@@ -3494,7 +3494,7 @@ function backupData(){
   const blob=new Blob([jsonStr],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url; a.download=`ing-backup-${today()}.json`; a.click(); URL.revokeObjectURL(url);
+  a.href=url; a.download=`Pen-backup-${today()}.json`; a.click(); URL.revokeObjectURL(url);
   showToast('Backup downloaded ✓');
   if(driveConnected){ saveJSONToDrive(jsonStr).then(()=>showToast('Saved to Drive ✓')).catch(()=>{}); }
 }
