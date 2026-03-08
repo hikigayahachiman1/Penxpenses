@@ -3469,7 +3469,7 @@ async function saveJSONToDrive(jsonStr){
 async function saveCSVToDrive(csvStr, month){
   // One file per month — overwrite by using same name
   const label  = month && month !== 'all' ? month : today().slice(0,7);
-  const filename = `ing-finance-export-${label}.csv`;
+  const filename = `Asek-finance-export-${label}.csv`;
   // Find existing file for this month and delete it first (so we get a clean overwrite)
   try{
     const search = await fetch(
