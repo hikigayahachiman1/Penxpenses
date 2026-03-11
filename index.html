@@ -732,7 +732,7 @@ textarea.form-input{resize:vertical;min-height:70px}
 // =====================================================
 // DATA MODEL & STORAGE
 // =====================================================
-const STORAGE_KEY = 'asekxpenses_v1';
+const STORAGE_KEY = 'penxpenses_v1';
 
 const DEFAULT_CATEGORIES = [
   {id:'cat_food',name:'Food',color:'#22c55e',budgetTHB:0,budgetIDR:0},
@@ -1946,7 +1946,7 @@ function exportJSON() {
   const blob = new Blob([data],{type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href=url; a.download=`asekxpenses-backup-${today()}.json`; a.click();
+  a.href=url; a.download=`penxpenses-backup-${today()}.json`; a.click();
   URL.revokeObjectURL(url);
   toast('Backup downloaded');
 }
@@ -2021,7 +2021,7 @@ async function gdriveBackup() {
   if (!gAccessToken) { toast('Connect to Google Drive first','error'); return; }
   try {
     const data = JSON.stringify(DB);
-    const filename = `asekxpenses-backup-${today()}.json`;
+    const filename = `penxpenses-backup-${today()}.json`;
 
     // Check if folder exists or create
     let folderId = DB.settings.googleFolderId;
@@ -2029,7 +2029,7 @@ async function gdriveBackup() {
       const folderRes = await fetch('https://www.googleapis.com/drive/v3/files',{
         method:'POST',
         headers:{'Authorization':'Bearer '+gAccessToken,'Content-Type':'application/json'},
-        body:JSON.stringify({name:'AsekXpenses Backups',mimeType:'application/vnd.google-apps.folder'})
+        body:JSON.stringify({name:'PenXpenses Backups',mimeType:'application/vnd.google-apps.folder'})
       });
       const folder = await folderRes.json();
       folderId = folder.id;
