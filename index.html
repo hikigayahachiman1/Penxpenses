@@ -296,6 +296,7 @@ textarea.form-input{resize:vertical;min-height:70px}
     <div class="tab" data-tab="subs">Subscriptions</div>
     <div class="tab" data-tab="creditcard">Credit Cards</div>
     <div class="tab" data-tab="analytics">Analytics</div>
+    <div class="tab" data-tab="savings">💰 Penyimpanan</div>
     <div class="tab" data-tab="settings">Settings</div>
   </div>
 
@@ -454,6 +455,64 @@ textarea.form-input{resize:vertical;min-height:70px}
       <div class="chart-card">
         <div class="chart-title">Top Categories</div>
         <div id="an-cat-rank"></div>
+      </div>
+    </div>
+
+    <!-- PENYIMPANAN BULANAN -->
+    <div class="page" id="page-savings">
+      <div class="month-nav" id="sv-month-nav">
+        <button id="sv-prev-month">&#8592;</button>
+        <span id="sv-month-label"></span>
+        <button id="sv-next-month">&#8594;</button>
+      </div>
+      <div class="summary-grid" id="sv-summary"></div>
+      <div class="card">
+        <div class="card-title">➕ Tambah Pemasukan</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Jenis</label>
+            <select class="form-input" id="sv-type">
+              <option value="gaji">💼 Gaji</option>
+              <option value="bonus">🎁 Bonus</option>
+              <option value="thr">🎉 THR</option>
+              <option value="freelance">💻 Freelance</option>
+              <option value="investasi">📈 Investasi</option>
+              <option value="lainnya">📦 Lainnya</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mata Uang</label>
+            <select class="form-input" id="sv-currency">
+              <option value="IDR">IDR</option>
+              <option value="THB">THB</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Jumlah *</label>
+            <input type="number" class="form-input" id="sv-amount" placeholder="0" step="1000" min="0" inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tanggal</label>
+            <input type="date" class="form-input" id="sv-date">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Keterangan</label>
+          <input type="text" class="form-input" id="sv-note" placeholder="e.g. Gaji bulan Maret, Bonus proyek…">
+        </div>
+        <button class="btn btn-primary btn-full" id="sv-save-btn">Simpan Pemasukan</button>
+      </div>
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">Daftar Pemasukan Bulan Ini</div>
+        </div>
+        <div id="sv-income-list"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Tren Pemasukan vs Pengeluaran (6 Bulan)</div>
+        <div class="chart-wrap"><canvas id="sv-trend-chart"></canvas></div>
       </div>
     </div>
 
@@ -796,6 +855,7 @@ function initDB() {
     DB.subscriptions = saved.subscriptions || [];
     DB.creditCards = saved.creditCards || [];
     DB.ccTransactions = saved.ccTransactions || [];
+    DB.incomes = saved.incomes || [];
     DB.categories = saved.categories || DEFAULT_CATEGORIES;
     DB.accounts = saved.accounts || DEFAULT_ACCOUNTS;
     DB.settings = Object.assign({}, DEFAULT_SETTINGS, saved.settings || {});
@@ -805,6 +865,7 @@ function initDB() {
     DB.subscriptions = [];
     DB.creditCards = [];
     DB.ccTransactions = [];
+    DB.incomes = [];
     DB.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
     DB.accounts = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
     DB.settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
@@ -817,6 +878,7 @@ const DB = {
   subscriptions: [],
   creditCards: [],
   ccTransactions: [],
+  incomes: [],
   categories: [],
   accounts: [],
   settings: {}
@@ -958,7 +1020,8 @@ function renderCurrentTab() {
     case 'reimb': renderReimb(); break;
     case 'subs': renderSubs(); break;
     case 'creditcard': renderCreditCards(); break;
-    case 'analytics': setTimeout(() => renderAnalytics(), 50); break;
+    case 'analytics': renderAnalytics(); break;
+    case 'savings': renderSavings(); break;
     case 'settings': renderSettings(); break;
   }
 }
@@ -2176,26 +2239,36 @@ document.getElementById('qa-amount').addEventListener('keydown', e => {
 });
 
 // =====================================================
-// ANALYTICS
+// ANALYTICS — FIXED
 // =====================================================
 let anCharts = {};
 
 function destroyAnChart(id) {
   if (anCharts[id]) { anCharts[id].destroy(); delete anCharts[id]; }
+  // Hapus instance Chart.js yang masih nempel di canvas
+  const canvasMap = { trend: 'an-trend-chart', cat: 'an-cat-chart', cur: 'an-cur-chart' };
+  if (canvasMap[id]) {
+    const ex = Chart.getChart(canvasMap[id]);
+    if (ex) ex.destroy();
+  }
 }
 
 function getAnalyticsMonths(rangeVal) {
   const months = [];
   const now = new Date();
+  const nowMk = now.toISOString().slice(0, 7);
   if (rangeVal === 'all') {
     const all = DB.expenses.map(e => monthKey(e.date)).filter(Boolean);
-    if (!all.length) return [];
+    // Jika tidak ada data, tampilkan bulan sekarang supaya UI tidak kosong
+    if (!all.length) return [nowMk];
     const min = all.sort()[0];
-    let cur = new Date(min + '-01');
-    const end = new Date(now.getFullYear(), now.getMonth(), 1);
-    while (cur <= end) {
-      months.push(cur.toISOString().slice(0, 7));
-      cur.setMonth(cur.getMonth() + 1);
+    // Iterasi integer — menghindari bug Date JS di akhir bulan
+    let [y, m] = min.split('-').map(Number);
+    const [ey, em] = [now.getFullYear(), now.getMonth() + 1];
+    while (y < ey || (y === ey && m <= em)) {
+      months.push(`${y}-${String(m).padStart(2, '0')}`);
+      m++; if (m > 12) { m = 1; y++; }
+      if (months.length > 120) break; // safety cap
     }
     return months;
   }
@@ -2210,7 +2283,7 @@ function getAnalyticsMonths(rangeVal) {
 function filterExpenses(months, currency) {
   const mkSet = new Set(months);
   return DB.expenses.filter(e => {
-    if (e.ccId) return false; // exclude CC
+    if (e.ccId) return false;
     if (!mkSet.has(monthKey(e.date))) return false;
     if (currency !== 'all' && e.currency !== currency) return false;
     return true;
@@ -2224,12 +2297,10 @@ function renderAnalytics() {
   const exps = filterExpenses(months, currency);
   const rate = DB.settings.exchangeRateIDRtoTHB || 0.0019;
 
-  // Helper: konversi semua ke IDR
   function toIDR(e) {
     return e.currency === 'IDR' ? parseFloat(e.amount) : parseFloat(e.amount) / rate;
   }
 
-  // ---- Stat boxes ----
   const totalTHB = exps.filter(e => e.currency === 'THB').reduce((s, e) => s + parseFloat(e.amount), 0);
   const totalIDR = exps.filter(e => e.currency === 'IDR').reduce((s, e) => s + parseFloat(e.amount), 0);
   const combinedIDR = totalIDR + totalTHB / rate;
@@ -2254,19 +2325,17 @@ function renderAnalytics() {
     </div>
   `;
 
-  // ---- Monthly trend (semua dalam IDR) ----
   const trendTHBinIDR = months.map(mk => exps.filter(e => monthKey(e.date) === mk && e.currency === 'THB').reduce((s, e) => s + parseFloat(e.amount) / rate, 0));
-  const trendIDR = months.map(mk => exps.filter(e => monthKey(e.date) === mk && e.currency === 'IDR').reduce((s, e) => s + parseFloat(e.amount), 0));
-  const trendLabels = months.map(mk => { const [y, m] = mk.split('-'); return new Date(y, m - 1).toLocaleDateString('en-GB', {month: 'short', year: '2-digit'}); });
+  const trendIDR      = months.map(mk => exps.filter(e => monthKey(e.date) === mk && e.currency === 'IDR').reduce((s, e) => s + parseFloat(e.amount), 0));
+  const trendLabels   = months.map(mk => { const [y, m] = mk.split('-'); return new Date(y, m - 1).toLocaleDateString('en-GB', {month: 'short', year: '2-digit'}); });
 
   destroyAnChart('trend');
-  const tCtx = document.getElementById('an-trend-chart').getContext('2d');
-  anCharts['trend'] = new Chart(tCtx, {
+  anCharts['trend'] = new Chart(document.getElementById('an-trend-chart'), {
     type: 'bar',
     data: {
       labels: trendLabels,
       datasets: [
-        { label: 'IDR', data: trendIDR, backgroundColor: '#3b82f660', borderColor: '#3b82f6', borderWidth: 1.5, borderRadius: 4 },
+        { label: 'IDR',     data: trendIDR,      backgroundColor: '#3b82f660', borderColor: '#3b82f6', borderWidth: 1.5, borderRadius: 4 },
         { label: 'THB→IDR', data: trendTHBinIDR, backgroundColor: '#22c55e60', borderColor: '#22c55e', borderWidth: 1.5, borderRadius: 4 }
       ]
     },
@@ -2275,12 +2344,11 @@ function renderAnalytics() {
       plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } }, tooltip: { callbacks: { label: ctx => ' ' + fmtAmount(ctx.raw, 'IDR') } } },
       scales: {
         x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#2d374820' } },
-        y: { ticks: { color: '#64748b', font: { size: 10 }, callback: v => 'Rp' + (v >= 1000000 ? (v / 1000000).toFixed(1) + 'jt' : v >= 1000 ? (v / 1000).toFixed(0) + 'rb' : v) }, grid: { color: '#2d374840' } }
+        y: { ticks: { color: '#64748b', font: { size: 10 }, callback: v => 'Rp' + (v >= 1000000 ? (v/1000000).toFixed(1)+'jt' : v >= 1000 ? (v/1000).toFixed(0)+'rb' : v) }, grid: { color: '#2d374840' } }
       }
     }
   });
 
-  // ---- Category pie (semua dalam IDR) ----
   const catTotals = {};
   exps.forEach(e => {
     const cat = getCategoryById(e.categoryId || e.category);
@@ -2291,8 +2359,7 @@ function renderAnalytics() {
   const catArr = Object.values(catTotals).filter(c => c.total > 0).sort((a, b) => b.total - a.total);
 
   destroyAnChart('cat');
-  const cCtx = document.getElementById('an-cat-chart').getContext('2d');
-  anCharts['cat'] = new Chart(cCtx, {
+  anCharts['cat'] = new Chart(document.getElementById('an-cat-chart'), {
     type: 'doughnut',
     data: {
       labels: catArr.map(c => c.name),
@@ -2307,12 +2374,10 @@ function renderAnalytics() {
     }
   });
 
-  // ---- Currency split donut (dalam IDR) ----
   const thbInIDR = exps.filter(e => e.currency === 'THB').reduce((s, e) => s + parseFloat(e.amount) / rate, 0);
   const idrTotal = exps.filter(e => e.currency === 'IDR').reduce((s, e) => s + parseFloat(e.amount), 0);
   destroyAnChart('cur');
-  const rCtx = document.getElementById('an-cur-chart').getContext('2d');
-  anCharts['cur'] = new Chart(rCtx, {
+  anCharts['cur'] = new Chart(document.getElementById('an-cur-chart'), {
     type: 'doughnut',
     data: {
       labels: ['IDR', 'THB (in IDR)'],
@@ -2327,7 +2392,6 @@ function renderAnalytics() {
     }
   });
 
-  // ---- Category ranking (dalam IDR) ----
   const maxTotal = catArr[0] ? catArr[0].total : 1;
   document.getElementById('an-cat-rank').innerHTML = catArr.length
     ? catArr.map(c => `
@@ -2340,9 +2404,201 @@ function renderAnalytics() {
     : '<div class="empty"><div class="empty-text">No data for this period</div></div>';
 }
 
-// Wire up analytics filter changes
 document.getElementById('an-range').addEventListener('change', renderAnalytics);
 document.getElementById('an-currency').addEventListener('change', renderAnalytics);
+
+// =====================================================
+// PENYIMPANAN BULANAN
+// =====================================================
+let svYear = new Date().getFullYear();
+let svMonth = new Date().getMonth();
+let svChart = null;
+
+const INCOME_TYPE_LABEL = {
+  gaji:      '💼 Gaji',
+  bonus:     '🎁 Bonus',
+  thr:       '🎉 THR',
+  freelance: '💻 Freelance',
+  investasi: '📈 Investasi',
+  lainnya:   '📦 Lainnya',
+};
+
+document.getElementById('sv-date').value = today();
+
+document.getElementById('sv-prev-month').addEventListener('click', () => {
+  svMonth--; if (svMonth < 0) { svMonth = 11; svYear--; }
+  renderSavings();
+});
+document.getElementById('sv-next-month').addEventListener('click', () => {
+  svMonth++; if (svMonth > 11) { svMonth = 0; svYear++; }
+  renderSavings();
+});
+
+document.getElementById('sv-save-btn').addEventListener('click', () => {
+  const amount   = parseFloat(document.getElementById('sv-amount').value);
+  const currency = document.getElementById('sv-currency').value;
+  const type     = document.getElementById('sv-type').value;
+  const date     = document.getElementById('sv-date').value || today();
+  const note     = document.getElementById('sv-note').value.trim();
+
+  if (!amount || amount <= 0) { toast('Masukkan jumlah yang valid', 'error'); return; }
+  if (!DB.incomes) DB.incomes = [];
+  DB.incomes.push({ id: uid(), type, amount, currency, date, note });
+  saveData();
+  document.getElementById('sv-amount').value = '';
+  document.getElementById('sv-note').value   = '';
+  document.getElementById('sv-date').value   = today();
+  toast('✅ Pemasukan berhasil disimpan!', 'success');
+  renderSavings();
+});
+
+function getSvMonthKey() {
+  return `${svYear}-${String(svMonth + 1).padStart(2, '0')}`;
+}
+
+function renderSavings() {
+  if (!DB.incomes) DB.incomes = [];
+  const rate = DB.settings.exchangeRateIDRtoTHB || 0.0019;
+  const mk   = getSvMonthKey();
+
+  document.getElementById('sv-month-label').textContent =
+    new Date(svYear, svMonth, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+  const thisMonthIncomes = DB.incomes.filter(i => monthKey(i.date) === mk);
+
+  const totalIncomeIDR = thisMonthIncomes.reduce((s, i) =>
+    s + (i.currency === 'IDR' ? parseFloat(i.amount) : parseFloat(i.amount) / rate), 0);
+
+  const thisMonthExps  = DB.expenses.filter(e => !e.ccId && monthKey(e.date) === mk);
+  const totalExpenseIDR = thisMonthExps.reduce((s, e) =>
+    s + (e.currency === 'IDR' ? parseFloat(e.amount) : parseFloat(e.amount) / rate), 0);
+
+  const sisaIDR   = totalIncomeIDR - totalExpenseIDR;
+  const savingPct = totalIncomeIDR > 0 ? (sisaIDR / totalIncomeIDR * 100) : 0;
+  const barColor  = sisaIDR >= 0 ? 'var(--green)' : 'var(--red)';
+
+  // Breakdown per jenis
+  const byType = {};
+  thisMonthIncomes.forEach(i => {
+    const idr = i.currency === 'IDR' ? parseFloat(i.amount) : parseFloat(i.amount) / rate;
+    byType[i.type] = (byType[i.type] || 0) + idr;
+  });
+  const gajiIDR  = byType['gaji'] || 0;
+  const bonusIDR = (byType['bonus'] || 0) + (byType['thr'] || 0);
+  const otherIDR = Object.entries(byType)
+    .filter(([k]) => k !== 'gaji' && k !== 'bonus' && k !== 'thr')
+    .reduce((s, [, v]) => s + v, 0);
+
+  const breakdownHtml = [
+    gajiIDR  > 0 ? `💼 Gaji: <b>${fmtAmount(gajiIDR,  'IDR')}</b>` : '',
+    bonusIDR > 0 ? `🎁 Bonus/THR: <b>${fmtAmount(bonusIDR, 'IDR')}</b>` : '',
+    otherIDR > 0 ? `📦 Lainnya: <b>${fmtAmount(otherIDR, 'IDR')}</b>` : '',
+  ].filter(Boolean).join('&nbsp;&nbsp;');
+
+  document.getElementById('sv-summary').innerHTML = `
+    <div class="summary-card">
+      <div class="s-label">💼 Total Pemasukan</div>
+      <div class="s-amount" style="color:var(--green)">${fmtAmount(totalIncomeIDR, 'IDR')}</div>
+      <div class="s-sub">${thisMonthIncomes.length} entri bulan ini</div>
+    </div>
+    <div class="summary-card">
+      <div class="s-label">🛒 Total Pengeluaran</div>
+      <div class="s-amount" style="color:var(--red)">${fmtAmount(totalExpenseIDR, 'IDR')}</div>
+      <div class="s-sub">${thisMonthExps.length} transaksi</div>
+    </div>
+    <div class="summary-card full">
+      <div class="s-label">💰 Sisa / Tabungan Bulan Ini</div>
+      <div class="s-amount" style="color:${barColor};font-size:1.5rem">
+        ${sisaIDR < 0 ? '−' : ''}${fmtAmount(Math.abs(sisaIDR), 'IDR')}
+        ${sisaIDR < 0 ? '<span style="font-size:.75rem;color:var(--red)"> ⚠️ Defisit</span>' : ''}
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${Math.min(Math.max(savingPct, 0), 100).toFixed(1)}%;background:${barColor}"></div>
+        </div>
+        <div class="progress-text"><span>Saving rate</span><span>${savingPct.toFixed(1)}%</span></div>
+      </div>
+      ${breakdownHtml ? `<div class="s-sub" style="margin-top:8px">${breakdownHtml}</div>` : ''}
+    </div>
+  `;
+
+  // Daftar pemasukan bulan ini
+  const listEl = document.getElementById('sv-income-list');
+  if (!thisMonthIncomes.length) {
+    listEl.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">Belum ada pemasukan bulan ini</div></div>';
+  } else {
+    listEl.innerHTML = [...thisMonthIncomes]
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .map(i => `
+        <div class="expense-item" style="border-left:3px solid var(--green)">
+          <div class="expense-cat-dot" style="background:var(--green);margin-top:4px"></div>
+          <div class="expense-info">
+            <div class="expense-name">${INCOME_TYPE_LABEL[i.type] || i.type}</div>
+            <div class="expense-meta">${i.note || '—'} &bull; ${fmtDate(i.date)}</div>
+          </div>
+          <div class="expense-right">
+            <div class="expense-amount" style="color:var(--green)">${fmtAmount(parseFloat(i.amount), i.currency)}</div>
+            <div style="margin-top:4px">
+              <button class="btn btn-xs btn-danger" onclick="deleteIncome('${i.id}')">Hapus</button>
+            </div>
+          </div>
+        </div>`).join('');
+  }
+
+  // Tren 6 bulan dari hari ini (selalu real-time, langsung update)
+  const now = new Date();
+  const trendMonths = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    trendMonths.push(d.toISOString().slice(0, 7));
+  }
+  const trendLabels  = trendMonths.map(mk => { const [y, m] = mk.split('-'); return new Date(y, m-1).toLocaleDateString('id-ID', {month:'short', year:'2-digit'}); });
+  const trendIncome  = trendMonths.map(mk => (DB.incomes||[]).filter(i => monthKey(i.date)===mk).reduce((s,i)=>s+(i.currency==='IDR'?parseFloat(i.amount):parseFloat(i.amount)/rate),0));
+  const trendExpense = trendMonths.map(mk => DB.expenses.filter(e=>!e.ccId&&monthKey(e.date)===mk).reduce((s,e)=>s+(e.currency==='IDR'?parseFloat(e.amount):parseFloat(e.amount)/rate),0));
+
+  // Kalau chart sudah ada, update data langsung tanpa destroy
+  // supaya grafik langsung refresh tanpa perlu ganti bulan
+  if (svChart) {
+    svChart.data.labels = trendLabels;
+    svChart.data.datasets[0].data = trendIncome;
+    svChart.data.datasets[1].data = trendExpense;
+    svChart.update('active');
+  } else {
+    const exSv = Chart.getChart('sv-trend-chart');
+    if (exSv) exSv.destroy();
+    svChart = new Chart(document.getElementById('sv-trend-chart'), {
+      type: 'bar',
+      data: {
+        labels: trendLabels,
+        datasets: [
+          { label: 'Pemasukan',   data: trendIncome,  backgroundColor: '#22c55e55', borderColor: '#22c55e', borderWidth: 1.5, borderRadius: 4 },
+          { label: 'Pengeluaran', data: trendExpense, backgroundColor: '#ef444455', borderColor: '#ef4444', borderWidth: 1.5, borderRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        animation: { duration: 400 },
+        plugins: {
+          legend: { labels: { color: '#94a3b8', font: { size: 11 } } },
+          tooltip: { callbacks: { label: ctx => ' ' + fmtAmount(ctx.raw, 'IDR') } }
+        },
+        scales: {
+          x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#2d374820' } },
+          y: { ticks: { color: '#64748b', font: { size: 10 }, callback: v => 'Rp'+(v>=1000000?(v/1000000).toFixed(1)+'jt':v>=1000?(v/1000).toFixed(0)+'rb':v) }, grid: { color: '#2d374840' } }
+        }
+      }
+    });
+  }
+}
+
+function deleteIncome(id) {
+  confirmDialog('Hapus pemasukan ini?', 'Hapus', () => {
+    DB.incomes = (DB.incomes || []).filter(i => i.id !== id);
+    saveData();
+    toast('Pemasukan dihapus', 'warning');
+    renderSavings();
+  });
+}
 
 // =====================================================
 // INIT
@@ -2350,7 +2606,6 @@ document.getElementById('an-currency').addEventListener('change', renderAnalytic
 initDB();
 populateQuickAdd();
 setQACurrency('THB');
-// Auto-focus amount on load
 setTimeout(() => document.getElementById('qa-amount').focus(), 80);
 renderDashboard();
 </script>
