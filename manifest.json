@@ -1,0 +1,24 @@
+{
+  "name": "PenXpenses",
+  "short_name": "PenXpenses",
+  "description": "Personal Finance Tracker",
+  "start_url": "./penxpenses.html",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/TBR6BrpW/st-small-507x507-pad-600x600-f8f8f8-removebg-preview.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.ibb.co/TBR6BrpW/st-small-507x507-pad-600x600-f8f8f8-removebg-preview.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
