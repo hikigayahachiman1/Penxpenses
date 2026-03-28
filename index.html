@@ -985,43 +985,6 @@ const PRESET_COLORS = [
   '#94a3b8','#64748b','#ffffff'
 ];
 
-function loadData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch(e) { return null; }
-}
-
-function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
-}
-
-function initDB() {
-  const saved = loadData();
-  if (saved) {
-    DB.expenses = saved.expenses || [];
-    DB.reimbursements = saved.reimbursements || [];
-    DB.subscriptions = saved.subscriptions || [];
-    DB.creditCards = saved.creditCards || [];
-    DB.ccTransactions = saved.ccTransactions || [];
-    DB.incomes = saved.incomes || [];
-    DB.categories = saved.categories || DEFAULT_CATEGORIES;
-    DB.accounts = saved.accounts || DEFAULT_ACCOUNTS;
-    DB.settings = Object.assign({}, DEFAULT_SETTINGS, saved.settings || {});
-  } else {
-    DB.expenses = [];
-    DB.reimbursements = [];
-    DB.subscriptions = [];
-    DB.creditCards = [];
-    DB.ccTransactions = [];
-    DB.incomes = [];
-    DB.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
-    DB.accounts = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
-    DB.settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-  }
-}
-
 const DB = {
   expenses: [],
   reimbursements: [],
@@ -2192,16 +2155,27 @@ function restoreJSON(input) {
   };
   reader.readAsText(file);
 }
-
 function clearAllData() {
-  confirmDialog('This will permanently delete ALL data. This cannot be undone!','Delete Everything',()=>{
+  confirmDialog('This will permanently delete ALL data. This cannot be undone!','Delete Everything', async () => {
     localStorage.removeItem(STORAGE_KEY);
-    initDB();
+    // Reset di Supabase juga
+    await fetch(`${SUPABASE_URL}/rest/v1/user_data?id=eq.main_user`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ data: {}, updated_at: new Date().toISOString() })
+    });
+    await initDB();
     saveData();
     toast('All data cleared','warning');
     renderCurrentTab();
   });
 }
+
 
 // =====================================================
 // GOOGLE DRIVE BACKUP
@@ -2874,13 +2848,13 @@ document.addEventListener('keydown', e => {
 // =====================================================
 // INIT
 // =====================================================
-initDB();
-populateQuickAdd();
-setQACurrency('THB');
-renderDashboard();
+(async function() {
+  await initDB();
+  populateQuickAdd();
+  setQACurrency('THB');
+  renderDashboard();
 
-// Init PIN screen
-(function() {
+  // Init PIN screen setelah data loaded
   const stored = pinGetStored();
   document.getElementById('app').style.display = 'none';
   if (!stored) {
