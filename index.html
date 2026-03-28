@@ -2849,14 +2849,36 @@ document.addEventListener('keydown', e => {
 // INIT
 // =====================================================
 (async function() {
+  // Tampilkan loading dulu
+  document.getElementById('pin-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+
+  // Loading indicator sementara
+  const loader = document.createElement('div');
+  loader.id = 'loading-screen';
+  loader.style.cssText = 'position:fixed;inset:0;background:#0f1117;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99998;';
+  loader.innerHTML = `
+    <img src="https://i.ibb.co/VXq0RWQ/ur-pin-large-front-square-600x600-removebg-preview.png" width="64" height="64" style="border-radius:16px;margin-bottom:16px;opacity:.8">
+    <div style="color:#6366f1;font-size:.9rem;font-weight:600;letter-spacing:.5px">Memuat data...</div>
+    <div style="color:#64748b;font-size:.75rem;margin-top:6px">Menghubungkan ke server</div>
+  `;
+  document.body.appendChild(loader);
+
+  // Load data dari Supabase DULU
   await initDB();
   populateQuickAdd();
   setQACurrency('THB');
   renderDashboard();
 
-  // Init PIN screen setelah data loaded
+  // Hapus loading screen
+  loader.remove();
+
+  // Baru tampilkan PIN screen
   const stored = pinGetStored();
+  const ps = document.getElementById('pin-screen');
+  ps.style.display = 'flex';
   document.getElementById('app').style.display = 'none';
+
   if (!stored) {
     pinMode = 'set';
     pinSetSubtitle('Buat PIN 4 digit baru', '#94a3b8');
@@ -2866,6 +2888,7 @@ document.addEventListener('keydown', e => {
     pinSetSubtitle('Masukkan PIN untuk masuk', '#64748b');
   }
 })();
+
 
 // Patch renderSettings supaya muncul card PIN
 const _baseRenderSettings = renderSettings;
