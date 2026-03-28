@@ -2733,7 +2733,40 @@ let pinBuffer    = '';
 let pinMode      = 'check';
 let pinFirst     = '';
 
-function pinGetStored() { return localStorage.getItem(PIN_KEY) || ''; }
+// Ambil PIN dari Supabase
+async function pinGetStoredRemote() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/user_pin?id=eq.main_user&select=pin_hash`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY
+      }
+    });
+    const rows = await res.json();
+    return rows?.[0]?.pin_hash || '';
+  } catch(e) {
+    return localStorage.getItem(PIN_KEY) || '';
+  }
+}
+
+// Simpan PIN ke Supabase
+async function pinSaveRemote(pin) {
+  localStorage.setItem(PIN_KEY, pin);
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/user_pin?id=eq.main_user`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ pin_hash: pin, updated_at: new Date().toISOString() })
+    });
+  } catch(e) {
+    console.error('PIN save error:', e);
+  }
+}
 
 function pinUpdateDots(buf) {
   document.querySelectorAll('.pin-dot').forEach((d, i) => {
@@ -2774,7 +2807,7 @@ function pinUnlock() {
   }, 280);
 }
 
-function pinPress(digit) {
+async function pinPress(digit) {
   if (pinBuffer.length >= PIN_DIGITS) return;
   pinBuffer += digit;
   pinUpdateDots(pinBuffer);
@@ -2798,7 +2831,7 @@ function pinPress(digit) {
       pinShowError('PIN tidak cocok, coba lagi');
       return;
     }
-    localStorage.setItem(PIN_KEY, entered);
+    await pinSaveRemote(entered);
     pinSetSubtitle('PIN berhasil dibuat! ✓', '#22c55e');
     setTimeout(() => pinUnlock(), 500);
     return;
@@ -2849,37 +2882,35 @@ document.addEventListener('keydown', e => {
 // INIT
 // =====================================================
 (async function() {
-  // Tampilkan loading dulu
+  // Loading screen
   document.getElementById('pin-screen').style.display = 'none';
   document.getElementById('app').style.display = 'none';
 
-  // Loading indicator sementara
   const loader = document.createElement('div');
-  loader.id = 'loading-screen';
   loader.style.cssText = 'position:fixed;inset:0;background:#0f1117;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99998;';
   loader.innerHTML = `
     <img src="https://i.ibb.co/VXq0RWQ/ur-pin-large-front-square-600x600-removebg-preview.png" width="64" height="64" style="border-radius:16px;margin-bottom:16px;opacity:.8">
-    <div style="color:#6366f1;font-size:.9rem;font-weight:600;letter-spacing:.5px">Memuat data...</div>
-    <div style="color:#64748b;font-size:.75rem;margin-top:6px">Menghubungkan ke server</div>
+    <div style="color:#6366f1;font-size:.9rem;font-weight:600">Memuat data...</div>
   `;
   document.body.appendChild(loader);
 
-  // Load data dari Supabase DULU
+  // Load data & PIN dari Supabase
   await initDB();
+  const remotePin = await pinGetStoredRemote();
+  // Sync ke localStorage
+  if (remotePin) localStorage.setItem(PIN_KEY, remotePin);
+
   populateQuickAdd();
   setQACurrency('THB');
   renderDashboard();
-
-  // Hapus loading screen
   loader.remove();
 
-  // Baru tampilkan PIN screen
-  const stored = pinGetStored();
+  // Tampilkan PIN screen
   const ps = document.getElementById('pin-screen');
   ps.style.display = 'flex';
   document.getElementById('app').style.display = 'none';
 
-  if (!stored) {
+  if (!remotePin) {
     pinMode = 'set';
     pinSetSubtitle('Buat PIN 4 digit baru', '#94a3b8');
     document.getElementById('pin-forgot-btn').style.display = 'none';
