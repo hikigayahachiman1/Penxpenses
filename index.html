@@ -870,7 +870,85 @@ textarea.form-input{resize:vertical;min-height:70px}
 // =====================================================
 // DATA MODEL & STORAGE
 // =====================================================
-const STORAGE_KEY = 'penxpenses_v1';
+// =====================================================
+// SUPABASE CONFIG — ganti dengan milik kamu!
+// =====================================================
+const SUPABASE_URL = 'https://hhquksoutsmxmboaxnss.supabase.co';
+const SUPABASE_KEY =
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhocXVrc291dHNteG1ib2F4bnNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3MjAzNDcsImV4cCI6MjA5MDI5NjM0N30.oqFBoNYj_3_5md5dYuvbcrpVnwSA6dAkuGiF-x0x_xs';
+const STORAGE_KEY  = 'penxpenses_v1'; // tetap untuk PIN
+
+// =====================================================
+// DATA MODEL & STORAGE — SUPABASE VERSION
+// =====================================================
+async function loadData() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/user_data?id=eq.main_user&select=data`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY
+      }
+    });
+    const rows = await res.json();
+    if (rows && rows.length > 0 && rows[0].data) {
+      return rows[0].data;
+    }
+    return null;
+  } catch(e) {
+    console.error('Load error:', e);
+    // Fallback ke localStorage kalau offline
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch(e2) { return null; }
+  }
+}
+
+async function saveData() {
+  // Simpan ke localStorage dulu (backup offline)
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+  // Simpan ke Supabase
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/user_data?id=eq.main_user`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ data: DB, updated_at: new Date().toISOString() })
+    });
+  } catch(e) {
+    console.error('Save error:', e);
+    // Data sudah tersimpan di localStorage, tidak masalah
+  }
+}
+
+async function initDB() {
+  const saved = await loadData();
+  if (saved) {
+    DB.expenses       = saved.expenses       || [];
+    DB.reimbursements = saved.reimbursements || [];
+    DB.subscriptions  = saved.subscriptions  || [];
+    DB.creditCards    = saved.creditCards    || [];
+    DB.ccTransactions = saved.ccTransactions || [];
+    DB.incomes        = saved.incomes        || [];
+    DB.categories     = saved.categories     || DEFAULT_CATEGORIES;
+    DB.accounts       = saved.accounts       || DEFAULT_ACCOUNTS;
+    DB.settings       = Object.assign({}, DEFAULT_SETTINGS, saved.settings || {});
+  } else {
+    DB.expenses       = [];
+    DB.reimbursements = [];
+    DB.subscriptions  = [];
+    DB.creditCards    = [];
+    DB.ccTransactions = [];
+    DB.incomes        = [];
+    DB.categories     = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+    DB.accounts       = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
+    DB.settings       = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  }
+}
 
 const DEFAULT_CATEGORIES = [
   {id:'cat_food',name:'Food',color:'#22c55e',budgetTHB:0,budgetIDR:0},
