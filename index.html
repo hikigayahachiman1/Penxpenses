@@ -2738,6 +2738,7 @@ let pinFirst     = '';
 let pinTries     = 0;
 let pinLocked    = false;
 let pinLockTimer = null;
+let pinRemote    = ''; // PIN dari Supabase, diisi saat init
 
 // Ambil PIN dari Supabase
 async function pinGetStoredRemote() {
@@ -2757,7 +2758,8 @@ async function pinGetStoredRemote() {
 
 // Simpan PIN ke Supabase
 async function pinSaveRemote(pin) {
-  localStorage.setItem(PIN_KEY, pin);
+  pinRemote = pin; // update global langsung
+  localStorage.removeItem(PIN_KEY); // tidak simpan di localStorage
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/user_pin?id=eq.main_user`, {
       method: 'PATCH',
@@ -2844,10 +2846,9 @@ async function pinPress(digit) {
     return;
   }
 
-  // mode check
-  const storedPin = localStorage.getItem(PIN_KEY) || '';
+  // mode check — selalu bandingkan dengan PIN dari Supabase
+  const storedPin = pinRemote || '';
   if (!storedPin) {
-    // Belum ada PIN — blokir, harus lewat passphrase dulu
     pinShowError('Hubungi admin untuk akses');
     return;
   }
@@ -2957,8 +2958,8 @@ document.addEventListener('keydown', e => {
   // Load data & PIN dari Supabase
   await initDB();
   const remotePin = await pinGetStoredRemote();
-  // Sync ke localStorage
-  if (remotePin) localStorage.setItem(PIN_KEY, remotePin);
+  pinRemote = remotePin || '';
+  // TIDAK sync ke localStorage — selalu cek Supabase setiap buka app
 
   populateQuickAdd();
   setQACurrency('THB');
