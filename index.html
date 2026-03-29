@@ -2838,7 +2838,8 @@ async function pinPress(digit) {
   }
 
   // mode check
-  if (entered === pinGetStored()) {
+  const storedPin = localStorage.getItem(PIN_KEY) || '';
+  if (entered === storedPin) {
     pinUnlock();
   } else {
     pinShowError('PIN salah, coba lagi');
