@@ -317,7 +317,7 @@ textarea.form-input{resize:vertical;min-height:70px}
     <button class="pin-btn" onclick="pinPress('7')">7</button>
     <button class="pin-btn" onclick="pinPress('8')">8</button>
     <button class="pin-btn" onclick="pinPress('9')">9</button>
-    <button class="pin-btn pin-btn-sm" onclick="pinForgot()" id="pin-forgot-btn" style="font-size:.65rem;color:#64748b;background:#1e2535">Lupa PIN</button>
+    <button class="pin-btn pin-btn-sm" onclick="pinSecretReset()" id="pin-forgot-btn" style="font-size:.65rem;color:#1e2535;background:#1e2535;border-color:#1e2535;cursor:default">・・・</button>
     <button class="pin-btn" onclick="pinPress('0')">0</button>
     <button class="pin-btn pin-btn-del" onclick="pinDelete()">⌫</button>
   </div>
@@ -2727,11 +2727,17 @@ function deleteIncome(id) {
 // =====================================================
 // PIN SYSTEM
 // =====================================================
-const PIN_KEY    = 'penxpenses_pin';
-const PIN_DIGITS = 4;
+const PIN_KEY       = 'penxpenses_pin';
+const PIN_DIGITS    = 4;
+const PIN_SECRET    = 'asekganteng';
+const PIN_MAX_TRIES = 3;
+const PIN_LOCKOUT_S = 30;
 let pinBuffer    = '';
 let pinMode      = 'check';
 let pinFirst     = '';
+let pinTries     = 0;
+let pinLocked    = false;
+let pinLockTimer = null;
 
 // Ambil PIN dari Supabase
 async function pinGetStoredRemote() {
@@ -2808,6 +2814,7 @@ function pinUnlock() {
 }
 
 async function pinPress(digit) {
+  if (pinLocked) return;
   if (pinBuffer.length >= PIN_DIGITS) return;
   pinBuffer += digit;
   pinUpdateDots(pinBuffer);
@@ -2839,23 +2846,75 @@ async function pinPress(digit) {
 
   // mode check
   const storedPin = localStorage.getItem(PIN_KEY) || '';
+  if (!storedPin) {
+    // Belum ada PIN — blokir, harus lewat passphrase dulu
+    pinShowError('Hubungi admin untuk akses');
+    return;
+  }
   if (entered === storedPin) {
+    pinTries = 0;
     pinUnlock();
   } else {
-    pinShowError('PIN salah, coba lagi');
+    pinTries++;
+    if (pinTries >= PIN_MAX_TRIES) {
+      pinStartLockout();
+    } else {
+      pinShowError(`PIN salah. Sisa percobaan: ${PIN_MAX_TRIES - pinTries}`);
+    }
   }
 }
 
+function pinStartLockout() {
+  pinLocked = true;
+  pinBuffer = '';
+  pinUpdateDots('');
+  let sisa = PIN_LOCKOUT_S;
+  pinSetSubtitle(`🔒 Terkunci ${sisa}d...`, '#ef4444');
+  document.getElementById('pin-error').textContent = '';
+  // disable numpad visually
+  document.querySelectorAll('.pin-btn').forEach(b => b.style.opacity = '0.3');
+  pinLockTimer = setInterval(() => {
+    sisa--;
+    pinSetSubtitle(`🔒 Terkunci ${sisa}d...`, '#ef4444');
+    if (sisa <= 0) {
+      clearInterval(pinLockTimer);
+      pinLocked = false;
+      pinTries  = 0;
+      pinSetSubtitle('Masukkan PIN untuk masuk', '#64748b');
+      document.querySelectorAll('.pin-btn').forEach(b => b.style.opacity = '');
+    }
+  }, 1000);
+}
+
 function pinDelete() {
+  if (pinLocked) return;
   if (!pinBuffer.length) return;
   pinBuffer = pinBuffer.slice(0, -1);
   pinUpdateDots(pinBuffer);
 }
 
 function pinForgot() {
-  if (!confirm('Reset PIN akan menghapus SEMUA data aplikasi. Yakin?')) return;
-  localStorage.clear();
-  location.reload();
+  // Disembunyikan — reset via passphrase saja
+}
+
+function pinSecretReset() {
+  const input = prompt('Masukkan passphrase untuk reset PIN:');
+  if (!input) return;
+  if (input.trim() === PIN_SECRET) {
+    if (!confirm('Reset PIN? Kamu akan diminta buat PIN baru. Data tidak hilang.')) return;
+    localStorage.removeItem(PIN_KEY);
+    pinSaveRemote('').then(() => {
+      pinTries = 0; pinLocked = false;
+      if (pinLockTimer) clearInterval(pinLockTimer);
+      document.querySelectorAll('.pin-btn').forEach(b => b.style.opacity = '');
+      pinMode = 'set'; pinFirst = ''; pinBuffer = '';
+      pinUpdateDots('');
+      pinSetSubtitle('Buat PIN 4 digit baru', '#94a3b8');
+      document.getElementById('pin-error').textContent = '';
+    });
+  } else {
+    // Salah passphrase — diam saja, jangan kasih hint
+  }
 }
 
 function changePin() {
@@ -2911,14 +2970,9 @@ document.addEventListener('keydown', e => {
   ps.style.display = 'flex';
   document.getElementById('app').style.display = 'none';
 
-  if (!remotePin) {
-    pinMode = 'set';
-    pinSetSubtitle('Buat PIN 4 digit baru', '#94a3b8');
-    document.getElementById('pin-forgot-btn').style.display = 'none';
-  } else {
-    pinMode = 'check';
-    pinSetSubtitle('Masukkan PIN untuk masuk', '#64748b');
-  }
+  // Selalu mode check — tidak ada yang bisa buat PIN baru tanpa passphrase
+  pinMode = 'check';
+  pinSetSubtitle('Masukkan PIN untuk masuk', '#64748b');
 })();
 
 
