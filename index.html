@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="shortcut icon" href="https://i.ibb.co/TBR6BrpW/st-small-507x507-pad-600x600-f8f8f8-removebg-preview.png">
+<link rel="shortcut icon" href="https://i.ibb.co/Ngtx8c19/urso-cora-o.gif">
 <title>PenXpenses</title>
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -286,28 +286,19 @@ textarea.form-input{resize:vertical;min-height:70px}
 <body>
 
 <!-- ===== PIN SCREEN ===== -->
-<div id="pin-screen" style="
-  position:fixed;inset:0;z-index:99999;
-  background:#0f1117;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-">
+<div id="pin-screen" style="position:fixed;inset:0;z-index:99999;background:#0f1117;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <div style="text-align:center;margin-bottom:32px">
-    <img src="https://i.ibb.co/Ngtx8c19/urso-cora-o.gif" width="72" height="60" style="border-radius:12px;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto">
-    <div style="font-size:1.3rem;font-weight:700;color:#ee2456;letter-spacing:.5px">PenXpenses❤️</div>
+    <img src="https://i.ibb.co/Ngtx8c19/urso-cora-o.gif" width="72" height="72" style="border-radius:16px;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto">
+    <div style="font-size:1.3rem;font-weight:700;color:var(--accent2,#ee2456);letter-spacing:.5px">PenXpenses❤️</div>
     <div id="pin-subtitle" style="font-size:.8rem;color:#64748b;margin-top:4px">Masukkan PIN untuk masuk</div>
   </div>
-
-  <!-- Dots indicator -->
   <div id="pin-dots" style="display:flex;gap:14px;margin-bottom:32px">
     <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;background:#2d3748;border:2px solid #3d4a63;transition:all .15s ease"></div>
     <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;background:#2d3748;border:2px solid #3d4a63;transition:all .15s ease"></div>
     <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;background:#2d3748;border:2px solid #3d4a63;transition:all .15s ease"></div>
     <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;background:#2d3748;border:2px solid #3d4a63;transition:all .15s ease"></div>
   </div>
-
-  <!-- Numpad -->
-  <div id="pin-numpad" style="display:grid;grid-template-columns:repeat(3,72px);gap:12px">
+  <div style="display:grid;grid-template-columns:repeat(3,72px);gap:12px">
     <button class="pin-btn" onclick="pinPress('1')">1</button>
     <button class="pin-btn" onclick="pinPress('2')">2</button>
     <button class="pin-btn" onclick="pinPress('3')">3</button>
@@ -319,34 +310,15 @@ textarea.form-input{resize:vertical;min-height:70px}
     <button class="pin-btn" onclick="pinPress('9')">9</button>
     <button class="pin-btn pin-btn-sm" onclick="pinSecretReset()" id="pin-forgot-btn" style="font-size:.65rem;color:#1e2535;background:#1e2535;border-color:#1e2535;cursor:default">・・・</button>
     <button class="pin-btn" onclick="pinPress('0')">0</button>
-    <button class="pin-btn pin-btn-del" onclick="pinDelete()">⌫</button>
+    <button class="pin-btn" onclick="pinDelete()">⌫</button>
   </div>
-
   <div id="pin-error" style="margin-top:20px;font-size:.8rem;color:#ef4444;min-height:20px;text-align:center"></div>
 </div>
 
 <style>
-.pin-btn {
-  width:72px;height:72px;border-radius:50%;
-  background:#161b27;border:1px solid #2d3748;
-  color:#e2e8f0;font-size:1.4rem;font-weight:600;
-  cursor:pointer;transition:all .12s ease;
-  display:flex;align-items:center;justify-content:center;
-}
-.pin-btn:active{background:#252d42;transform:scale(.93)}
-.pin-btn-del{font-size:1.2rem}
-@keyframes pinShake {
-  0%,100%{transform:translateX(0)}
-  20%{transform:translateX(-8px)}
-  40%{transform:translateX(8px)}
-  60%{transform:translateX(-6px)}
-  80%{transform:translateX(6px)}
-}
-@keyframes pinSuccess {
-  0%{transform:scale(1)}
-  50%{transform:scale(1.15)}
-  100%{transform:scale(1)}
-}
+.pin-btn{width:72px;height:72px;border-radius:50%;background:#161b27;border:1px solid #2d3748;color:#e2e8f0;font-size:1.4rem;font-weight:600;cursor:pointer;transition:all .12s ease;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.pin-btn:active{background:#252d42;transform:scale(.92)}
+@keyframes pinShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
 </style>
 
 <div id="app">
@@ -367,6 +339,7 @@ textarea.form-input{resize:vertical;min-height:70px}
     <div class="tab" data-tab="reimb">Reimburse</div>
     <div class="tab" data-tab="subs">Subscriptions</div>
     <div class="tab" data-tab="creditcard">Credit Cards</div>
+    <div class="tab" data-tab="tabungan">🏦 Tabungan</div>
     <div class="tab" data-tab="analytics">Analytics</div>
     <div class="tab" data-tab="savings">💰 Penyimpanan</div>
     <div class="tab" data-tab="settings">Settings</div>
@@ -530,6 +503,57 @@ textarea.form-input{resize:vertical;min-height:70px}
       </div>
     </div>
 
+    <!-- TABUNGAN -->
+    <div class="page" id="page-tabungan">
+      <div class="summary-grid" id="tb-summary"></div>
+      <div class="section-header">
+        <div class="section-title">Rekening Tabungan</div>
+        <button class="btn btn-primary btn-sm" id="btn-add-bank">+ Tambah Rekening</button>
+      </div>
+      <div id="tb-bank-list"></div>
+      <div class="divider"></div>
+      <div class="section-header">
+        <div class="section-title">Catat Mutasi</div>
+      </div>
+      <div class="card" id="tb-mutasi-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Rekening</label>
+            <select class="form-input" id="tb-mut-bank"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jenis</label>
+            <select class="form-input" id="tb-mut-type">
+              <option value="in">➕ Masuk</option>
+              <option value="out">➖ Keluar</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Jumlah *</label>
+            <input type="number" class="form-input" id="tb-mut-amount" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tanggal</label>
+            <input type="date" class="form-input" id="tb-mut-date">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Keterangan</label>
+          <input type="text" class="form-input" id="tb-mut-note" placeholder="e.g. Transfer gaji, Tarik tunai...">
+        </div>
+        <button class="btn btn-primary btn-full" id="tb-mut-save">Simpan Mutasi</button>
+      </div>
+      <div class="section-header" style="margin-top:12px">
+        <div class="section-title">Riwayat Mutasi</div>
+        <select class="form-input" id="tb-filter-bank" style="max-width:160px">
+          <option value="">Semua Rekening</option>
+        </select>
+      </div>
+      <div id="tb-mutasi-list"></div>
+    </div>
+
     <!-- PENYIMPANAN BULANAN -->
     <div class="page" id="page-savings">
       <div class="month-nav" id="sv-month-nav">
@@ -547,7 +571,7 @@ textarea.form-input{resize:vertical;min-height:70px}
               <option value="gaji">💼 Gaji</option>
               <option value="bonus">🎁 Bonus</option>
               <option value="thr">🎉 THR</option>
-              <option value="freelance">💻 Freelance</option>
+              <option value="freelance">💸 Uang Makan</option>
               <option value="investasi">📈 Investasi</option>
               <option value="lainnya">📦 Lainnya</option>
             </select>
@@ -865,17 +889,65 @@ textarea.form-input{resize:vertical;min-height:70px}
   </div>
 </div>
 
+<!-- TABUNGAN BANK MODAL -->
+<div class="modal-overlay" id="modal-bank">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="bank-modal-title">Tambah Rekening</div>
+      <button class="modal-close" onclick="closeModal('modal-bank')">&#215;</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nama Bank / Rekening *</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+        <span class="tag" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);cursor:pointer" onclick="setBankPreset('BCA')">🏦 BCA</span>
+        <span class="tag" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);cursor:pointer" onclick="setBankPreset('SeaBank')">🌊 SeaBank</span>
+        <span class="tag" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);cursor:pointer" onclick="setBankPreset('ABA Bank')">🏛️ ABA Bank</span>
+        <span class="tag" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);cursor:pointer" onclick="setBankPreset('BNI')">🏦 BNI</span>
+        <span class="tag" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);cursor:pointer" onclick="setBankPreset('BRI')">🏦 BRI</span>
+        <span class="tag" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);cursor:pointer" onclick="setBankPreset('Mandiri')">🏦 Mandiri</span>
+        <span class="tag" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);cursor:pointer" onclick="setBankPreset('GoPay')">💚 GoPay</span>
+        <span class="tag" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);cursor:pointer" onclick="setBankPreset('OVO')">💜 OVO</span>
+      </div>
+      <input type="text" class="form-input" id="bank-name" placeholder="Atau ketik nama bank lain...">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Mata Uang</label>
+        <select class="form-input" id="bank-currency">
+          <option value="IDR">IDR</option>
+          <option value="USD">USD</option>
+          <option value="THB">THB</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Saldo Awal</label>
+        <input type="number" class="form-input" id="bank-saldo" placeholder="0" min="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Target Tabungan (opsional)</label>
+      <input type="number" class="form-input" id="bank-target" placeholder="0" min="0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Warna</label>
+      <div class="color-options" id="bank-colors"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-bank')">Batal</button>
+      <button class="btn btn-primary" id="save-bank-btn">Simpan</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 // =====================================================
 // DATA MODEL & STORAGE
 // =====================================================
-// =====================================================
 // SUPABASE CONFIG — ganti dengan milik kamu!
 // =====================================================
 const SUPABASE_URL = 'https://hhquksoutsmxmboaxnss.supabase.co';
-const SUPABASE_KEY =
-'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhocXVrc291dHNteG1ib2F4bnNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3MjAzNDcsImV4cCI6MjA5MDI5NjM0N30.oqFBoNYj_3_5md5dYuvbcrpVnwSA6dAkuGiF-x0x_xs';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhocXVrc291dHNteG1ib2F4bnNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3MjAzNDcsImV4cCI6MjA5MDI5NjM0N30.oqFBoNYj_3_5md5dYuvbcrpVnwSA6dAkuGiF-x0x_xs';
 const STORAGE_KEY  = 'penxpenses_v1'; // tetap untuk PIN
 
 // =====================================================
@@ -934,6 +1006,8 @@ async function initDB() {
     DB.creditCards    = saved.creditCards    || [];
     DB.ccTransactions = saved.ccTransactions || [];
     DB.incomes        = saved.incomes        || [];
+    DB.banks          = saved.banks          || [];
+    DB.bankMutasi     = saved.bankMutasi     || [];
     DB.categories     = saved.categories     || DEFAULT_CATEGORIES;
     DB.accounts       = saved.accounts       || DEFAULT_ACCOUNTS;
     DB.settings       = Object.assign({}, DEFAULT_SETTINGS, saved.settings || {});
@@ -944,6 +1018,8 @@ async function initDB() {
     DB.creditCards    = [];
     DB.ccTransactions = [];
     DB.incomes        = [];
+    DB.banks          = [];
+    DB.bankMutasi     = [];
     DB.categories     = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
     DB.accounts       = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
     DB.settings       = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
@@ -984,6 +1060,7 @@ const PRESET_COLORS = [
   '#06b6d4','#3b82f6','#6366f1','#a855f7','#ec4899',
   '#94a3b8','#64748b','#ffffff'
 ];
+
 
 const DB = {
   expenses: [],
@@ -1133,6 +1210,7 @@ function renderCurrentTab() {
     case 'reimb': renderReimb(); break;
     case 'subs': renderSubs(); break;
     case 'creditcard': renderCreditCards(); break;
+    case 'tabungan': renderTabungan(); break;
     case 'analytics': renderAnalytics(); break;
     case 'savings': renderSavings(); break;
     case 'settings': renderSettings(); break;
@@ -2155,6 +2233,7 @@ function restoreJSON(input) {
   };
   reader.readAsText(file);
 }
+
 function clearAllData() {
   confirmDialog('This will permanently delete ALL data. This cannot be undone!','Delete Everything', async () => {
     localStorage.removeItem(STORAGE_KEY);
@@ -2175,7 +2254,6 @@ function clearAllData() {
     renderCurrentTab();
   });
 }
-
 
 // =====================================================
 // GOOGLE DRIVE BACKUP
@@ -2223,7 +2301,7 @@ async function gdriveBackup() {
       const folderRes = await fetch('https://www.googleapis.com/drive/v3/files',{
         method:'POST',
         headers:{'Authorization':'Bearer '+gAccessToken,'Content-Type':'application/json'},
-        body:JSON.stringify({name:'PenXpenses Backups',mimeType:'application/vnd.google-apps.folder'})
+        body:JSON.stringify({name:'asekXpenses Backups',mimeType:'application/vnd.google-apps.folder'})
       });
       const folder = await folderRes.json();
       folderId = folder.id;
@@ -2542,7 +2620,7 @@ const INCOME_TYPE_LABEL = {
   gaji:      '💼 Gaji',
   bonus:     '🎁 Bonus',
   thr:       '🎉 THR',
-  freelance: '💻 Freelance',
+  freelance: '💸  Uang Makan',
   investasi: '📈 Investasi',
   lainnya:   '📦 Lainnya',
 };
@@ -2725,6 +2803,237 @@ function deleteIncome(id) {
 }
 
 // =====================================================
+// TABUNGAN
+// =====================================================
+let editingBankId = null;
+let selectedBankColor = '#3b82f6';
+
+const BANK_COLORS = [
+  '#3b82f6','#22c55e','#f59e0b','#ef4444','#a855f7',
+  '#06b6d4','#ec4899','#6366f1','#10b981','#94a3b8'
+];
+
+function bankToIDR(amount, currency) {
+  if (currency === 'IDR') return parseFloat(amount);
+  if (currency === 'USD') return parseFloat(amount) * 16000;
+  if (currency === 'THB') return parseFloat(amount) / (DB.settings.exchangeRateIDRtoTHB || 0.0019);
+  return parseFloat(amount);
+}
+
+function fmtBankAmount(n, currency) {
+  if (currency === 'IDR') return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+  if (currency === 'USD') return '$' + parseFloat(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  if (currency === 'THB') return '฿' + parseFloat(n).toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2});
+  return n;
+}
+
+function getBankBalance(bankId) {
+  const bank = DB.banks.find(b => b.id === bankId);
+  if (!bank) return 0;
+  const mutasi = (DB.bankMutasi || []).filter(m => m.bankId === bankId);
+  const totalIn  = mutasi.filter(m => m.type === 'in').reduce((s,m) => s + parseFloat(m.amount), 0);
+  const totalOut = mutasi.filter(m => m.type === 'out').reduce((s,m) => s + parseFloat(m.amount), 0);
+  return (parseFloat(bank.saldo) || 0) + totalIn - totalOut;
+}
+
+function initBankColorPicker() {
+  const el = document.getElementById('bank-colors');
+  el.innerHTML = BANK_COLORS.map(c =>
+    `<div class="color-option ${c===selectedBankColor?'selected':''}" style="background:${c}" data-color="${c}" onclick="selectBankColor('${c}')"></div>`
+  ).join('');
+}
+
+function selectBankColor(c) {
+  selectedBankColor = c;
+  document.querySelectorAll('#bank-colors .color-option').forEach(el => {
+    el.classList.toggle('selected', el.dataset.color === c);
+  });
+}
+
+function setBankPreset(name) {
+  document.getElementById('bank-name').value = name;
+}
+
+function openAddBank(id = null) {
+  editingBankId = id;
+  selectedBankColor = '#3b82f6';
+  if (id) {
+    const b = DB.banks.find(x => x.id === id);
+    if (!b) return;
+    document.getElementById('bank-modal-title').textContent = 'Edit Rekening';
+    document.getElementById('bank-name').value = b.name;
+    document.getElementById('bank-currency').value = b.currency;
+    document.getElementById('bank-saldo').value = b.saldo || 0;
+    document.getElementById('bank-target').value = b.target || '';
+    selectedBankColor = b.color || '#3b82f6';
+  } else {
+    document.getElementById('bank-modal-title').textContent = 'Tambah Rekening';
+    document.getElementById('bank-name').value = '';
+    document.getElementById('bank-currency').value = 'IDR';
+    document.getElementById('bank-saldo').value = '';
+    document.getElementById('bank-target').value = '';
+    selectedBankColor = '#3b82f6';
+  }
+  initBankColorPicker();
+  openModal('modal-bank');
+}
+
+document.getElementById('btn-add-bank').addEventListener('click', () => openAddBank());
+
+document.getElementById('save-bank-btn').addEventListener('click', () => {
+  const name     = document.getElementById('bank-name').value.trim();
+  const currency = document.getElementById('bank-currency').value;
+  const saldo    = parseFloat(document.getElementById('bank-saldo').value) || 0;
+  const target   = parseFloat(document.getElementById('bank-target').value) || 0;
+  if (!name) { toast('Masukkan nama rekening', 'error'); return; }
+  if (editingBankId) {
+    const idx = DB.banks.findIndex(b => b.id === editingBankId);
+    if (idx > -1) DB.banks[idx] = {...DB.banks[idx], name, currency, saldo, target, color: selectedBankColor};
+    toast('Rekening diperbarui');
+  } else {
+    DB.banks.push({id: uid(), name, currency, saldo, target, color: selectedBankColor, createdAt: Date.now()});
+    toast('Rekening ditambahkan');
+  }
+  saveData();
+  closeModal('modal-bank');
+  renderTabungan();
+});
+
+document.getElementById('tb-mut-save').addEventListener('click', () => {
+  const bankId = document.getElementById('tb-mut-bank').value;
+  const type   = document.getElementById('tb-mut-type').value;
+  const amount = parseFloat(document.getElementById('tb-mut-amount').value);
+  const date   = document.getElementById('tb-mut-date').value || today();
+  const note   = document.getElementById('tb-mut-note').value.trim();
+  if (!bankId) { toast('Pilih rekening', 'error'); return; }
+  if (!amount || amount <= 0) { toast('Masukkan jumlah yang valid', 'error'); return; }
+  if (!DB.bankMutasi) DB.bankMutasi = [];
+  DB.bankMutasi.push({id: uid(), bankId, type, amount, date, note, createdAt: Date.now()});
+  saveData();
+  document.getElementById('tb-mut-amount').value = '';
+  document.getElementById('tb-mut-note').value = '';
+  toast(type === 'in' ? '➕ Mutasi masuk disimpan' : '➖ Mutasi keluar disimpan', 'success');
+  renderTabungan();
+});
+
+document.getElementById('tb-filter-bank').addEventListener('change', renderMutasiList);
+
+function renderTabungan() {
+  if (!DB.banks) DB.banks = [];
+  if (!DB.bankMutasi) DB.bankMutasi = [];
+
+  const bankSel   = document.getElementById('tb-mut-bank');
+  const filterSel = document.getElementById('tb-filter-bank');
+  const bankOptions = DB.banks.map(b => `<option value="${b.id}">${escHtml(b.name)} (${b.currency})</option>`).join('');
+  bankSel.innerHTML   = `<option value="">Pilih rekening...</option>` + bankOptions;
+  filterSel.innerHTML = `<option value="">Semua Rekening</option>` + bankOptions;
+
+  if (!document.getElementById('tb-mut-date').value) {
+    document.getElementById('tb-mut-date').value = today();
+  }
+
+  const totalIDR  = DB.banks.reduce((s, b) => s + bankToIDR(getBankBalance(b.id), b.currency), 0);
+  const targetIDR = DB.banks.reduce((s, b) => s + bankToIDR(b.target || 0, b.currency), 0);
+
+  document.getElementById('tb-summary').innerHTML = `
+    <div class="summary-card">
+      <div class="s-label">Total Tabungan (IDR)</div>
+      <div class="s-amount" style="color:var(--green)">${fmtAmount(totalIDR, 'IDR')}</div>
+      <div class="s-sub">${DB.banks.length} rekening aktif</div>
+    </div>
+    <div class="summary-card">
+      <div class="s-label">Total Target</div>
+      <div class="s-amount" style="color:var(--accent)">${fmtAmount(targetIDR, 'IDR')}</div>
+      ${targetIDR > 0 ? `<div class="s-sub">${((totalIDR/targetIDR)*100).toFixed(1)}% tercapai</div>` : '<div class="s-sub">Belum ada target</div>'}
+    </div>
+  `;
+
+  const bankList = document.getElementById('tb-bank-list');
+  if (!DB.banks.length) {
+    bankList.innerHTML = `<div class="empty"><div class="empty-icon">🏦</div><div class="empty-text">Belum ada rekening. Tambah sekarang!</div></div>`;
+  } else {
+    bankList.innerHTML = DB.banks.map(b => {
+      const balance = getBankBalance(b.id);
+      const target  = parseFloat(b.target) || 0;
+      const pct     = target > 0 ? Math.min((balance / target) * 100, 100) : 0;
+      const barColor = pct >= 100 ? 'var(--green)' : pct >= 70 ? 'var(--accent)' : 'var(--blue)';
+      return `<div class="card" style="border-left:4px solid ${b.color};margin-bottom:10px;padding:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:1.1rem">🏦</span>
+            <span style="font-size:.95rem;font-weight:700;color:var(--text)">${escHtml(b.name)}</span>
+            <span class="badge badge-gray">${b.currency}</span>
+          </div>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-xs btn-secondary" onclick="openAddBank('${b.id}')">Edit</button>
+            <button class="btn btn-xs btn-danger" onclick="deleteBank('${b.id}')">Del</button>
+          </div>
+        </div>
+        <div style="font-size:1.3rem;font-weight:700;color:${b.color}">${fmtBankAmount(balance, b.currency)}</div>
+        <div style="font-size:.72rem;color:var(--text3);margin-top:2px">≈ ${fmtAmount(bankToIDR(balance, b.currency), 'IDR')}</div>
+        ${target > 0 ? `
+          <div class="progress-bar" style="margin-top:8px">
+            <div class="progress-fill" style="width:${pct.toFixed(1)}%;background:${barColor}"></div>
+          </div>
+          <div class="progress-text">
+            <span>Target: ${fmtBankAmount(target, b.currency)}</span>
+            <span>${pct.toFixed(1)}%</span>
+          </div>` : ''}
+      </div>`;
+    }).join('');
+  }
+  renderMutasiList();
+}
+
+function renderMutasiList() {
+  if (!DB.bankMutasi) DB.bankMutasi = [];
+  const filterBank = document.getElementById('tb-filter-bank').value;
+  const mutasi = [...DB.bankMutasi]
+    .filter(m => !filterBank || m.bankId === filterBank)
+    .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
+
+  const list = document.getElementById('tb-mutasi-list');
+  if (!mutasi.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-text">Belum ada mutasi</div></div>`;
+    return;
+  }
+  list.innerHTML = mutasi.map(m => {
+    const bank = DB.banks.find(b => b.id === m.bankId);
+    return `<div class="expense-item">
+      <div class="expense-cat-dot" style="background:${m.type==='in'?'var(--green)':'var(--red)'}"></div>
+      <div class="expense-info">
+        <div class="expense-name">${m.type==='in'?'➕':'➖'} ${escHtml(m.note || (m.type==='in'?'Uang Masuk':'Uang Keluar'))}</div>
+        <div class="expense-meta">${escHtml(bank?.name || '?')} &bull; ${fmtDate(m.date)}</div>
+      </div>
+      <div class="expense-right">
+        <div class="expense-amount" style="color:${m.type==='in'?'var(--green)':'var(--red)'}">
+          ${m.type==='in'?'+':'-'}${fmtBankAmount(m.amount, bank?.currency||'IDR')}
+        </div>
+        <div style="margin-top:4px">
+          <button class="btn btn-xs btn-danger" onclick="deleteMutasi('${m.id}')">Del</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteBank(id) {
+  const b = DB.banks.find(x => x.id === id);
+  confirmDialog(`Hapus rekening "${b?.name}"? Semua mutasi juga akan dihapus.`, 'Hapus', () => {
+    DB.banks = DB.banks.filter(x => x.id !== id);
+    DB.bankMutasi = (DB.bankMutasi || []).filter(m => m.bankId !== id);
+    saveData(); toast('Rekening dihapus', 'warning'); renderTabungan();
+  });
+}
+
+function deleteMutasi(id) {
+  confirmDialog('Hapus mutasi ini?', 'Hapus', () => {
+    DB.bankMutasi = (DB.bankMutasi || []).filter(m => m.id !== id);
+    saveData(); toast('Mutasi dihapus', 'warning'); renderMutasiList();
+  });
+}
+
+// =====================================================
 // PIN SYSTEM
 // =====================================================
 const PIN_KEY       = 'penxpenses_pin';
@@ -2738,9 +3047,66 @@ let pinFirst     = '';
 let pinTries     = 0;
 let pinLocked    = false;
 let pinLockTimer = null;
-let pinRemote    = ''; // PIN dari Supabase, diisi saat init
+let pinRemote    = ''; // PIN dari Supabase
 
-// Ambil PIN dari Supabase
+function pinGetStored() { return pinRemote || ''; }
+
+function pinUpdateDots(buf) {
+  document.querySelectorAll('.pin-dot').forEach((d, i) => {
+    d.style.background  = i < buf.length ? '#6366f1' : '#2d3748';
+    d.style.borderColor = i < buf.length ? '#6366f1' : '#3d4a63';
+    d.style.transform   = i < buf.length ? 'scale(1.18)' : 'scale(1)';
+  });
+}
+
+function pinSetSubtitle(txt, color) {
+  const el = document.getElementById('pin-subtitle');
+  el.textContent = txt;
+  el.style.color = color || '#64748b';
+}
+
+function pinShowError(msg) {
+  document.getElementById('pin-error').textContent = msg;
+  const dots = document.getElementById('pin-dots');
+  dots.style.animation = 'none';
+  dots.offsetHeight;
+  dots.style.animation = 'pinShake .4s ease';
+  setTimeout(() => { document.getElementById('pin-error').textContent = ''; }, 1600);
+}
+
+function pinUnlock() {
+  document.querySelectorAll('.pin-dot').forEach(d => {
+    d.style.background = '#22c55e'; d.style.borderColor = '#22c55e';
+  });
+  const ps = document.getElementById('pin-screen');
+  setTimeout(() => {
+    ps.style.opacity = '0';
+    ps.style.transition = 'opacity .25s ease';
+    setTimeout(() => {
+      ps.style.display = 'none';
+      document.getElementById('app').style.display = '';
+      setTimeout(() => document.getElementById('qa-amount').focus(), 100);
+    }, 250);
+  }, 280);
+}
+
+async function pinSaveRemote(pin) {
+  pinRemote = pin;
+  localStorage.removeItem(PIN_KEY);
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/user_pin?id=eq.main_user`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ pin_hash: pin, updated_at: new Date().toISOString() })
+    });
+  } catch(e) { console.error('PIN save error:', e); }
+}
+
 async function pinGetStoredRemote() {
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/user_pin?id=eq.main_user&select=pin_hash`, {
@@ -2756,65 +3122,6 @@ async function pinGetStoredRemote() {
   }
 }
 
-// Simpan PIN ke Supabase
-async function pinSaveRemote(pin) {
-  pinRemote = pin; // update global langsung
-  localStorage.removeItem(PIN_KEY); // tidak simpan di localStorage
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/user_pin?id=eq.main_user`, {
-      method: 'PATCH',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({ pin_hash: pin, updated_at: new Date().toISOString() })
-    });
-  } catch(e) {
-    console.error('PIN save error:', e);
-  }
-}
-
-function pinUpdateDots(buf) {
-  document.querySelectorAll('.pin-dot').forEach((d, i) => {
-    d.style.background  = i < buf.length ? '#6366f1' : '#2d3748';
-    d.style.borderColor = i < buf.length ? '#6366f1' : '#3d4a63';
-    d.style.transform   = i < buf.length ? 'scale(1.15)' : 'scale(1)';
-  });
-}
-
-function pinSetSubtitle(txt, color) {
-  const el = document.getElementById('pin-subtitle');
-  el.textContent = txt;
-  el.style.color = color || '#64748b';
-}
-
-function pinShowError(msg) {
-  const el = document.getElementById('pin-error');
-  el.textContent = msg;
-  const dots = document.getElementById('pin-dots');
-  dots.style.animation = 'none';
-  dots.offsetHeight; // reflow
-  dots.style.animation = 'pinShake .4s ease';
-  setTimeout(() => { el.textContent = ''; }, 1600);
-}
-
-function pinUnlock() {
-  document.querySelectorAll('.pin-dot').forEach(d => {
-    d.style.background = '#22c55e'; d.style.borderColor = '#22c55e';
-  });
-  const ps = document.getElementById('pin-screen');
-  setTimeout(() => {
-    ps.style.opacity = '0';
-    ps.style.transition = 'opacity .25s ease';
-    setTimeout(() => {
-      ps.style.display = 'none';
-      document.getElementById('app').style.display = '';
-    }, 250);
-  }, 280);
-}
-
 async function pinPress(digit) {
   if (pinLocked) return;
   if (pinBuffer.length >= PIN_DIGITS) return;
@@ -2827,12 +3134,10 @@ async function pinPress(digit) {
   setTimeout(() => pinUpdateDots(''), 180);
 
   if (pinMode === 'set') {
-    pinFirst = entered;
-    pinMode  = 'confirm';
+    pinFirst = entered; pinMode = 'confirm';
     pinSetSubtitle('Konfirmasi PIN Anda', '#94a3b8');
     return;
   }
-
   if (pinMode === 'confirm') {
     if (entered !== pinFirst) {
       pinMode = 'set'; pinFirst = '';
@@ -2845,8 +3150,7 @@ async function pinPress(digit) {
     setTimeout(() => pinUnlock(), 500);
     return;
   }
-
-  // mode check — selalu bandingkan dengan PIN dari Supabase
+  // mode check — selalu dari Supabase
   const storedPin = pinRemote || '';
   if (!storedPin) {
     pinShowError('Hubungi admin untuk akses');
@@ -2872,7 +3176,6 @@ function pinStartLockout() {
   let sisa = PIN_LOCKOUT_S;
   pinSetSubtitle(`🔒 Terkunci ${sisa}d...`, '#ef4444');
   document.getElementById('pin-error').textContent = '';
-  // disable numpad visually
   document.querySelectorAll('.pin-btn').forEach(b => b.style.opacity = '0.3');
   pinLockTimer = setInterval(() => {
     sisa--;
@@ -2894,16 +3197,13 @@ function pinDelete() {
   pinUpdateDots(pinBuffer);
 }
 
-function pinForgot() {
-  // Disembunyikan — reset via passphrase saja
-}
+function pinForgot() { /* disembunyikan */ }
 
 function pinSecretReset() {
   const input = prompt('Masukkan passphrase untuk reset PIN:');
   if (!input) return;
   if (input.trim() === PIN_SECRET) {
-    if (!confirm('Reset PIN? Kamu akan diminta buat PIN baru. Data tidak hilang.')) return;
-    localStorage.removeItem(PIN_KEY);
+    if (!confirm('Reset PIN? Data tidak akan hilang.')) return;
     pinSaveRemote('').then(() => {
       pinTries = 0; pinLocked = false;
       if (pinLockTimer) clearInterval(pinLockTimer);
@@ -2913,8 +3213,6 @@ function pinSecretReset() {
       pinSetSubtitle('Buat PIN 4 digit baru', '#94a3b8');
       document.getElementById('pin-error').textContent = '';
     });
-  } else {
-    // Salah passphrase — diam saja, jangan kasih hint
   }
 }
 
@@ -2923,11 +3221,12 @@ function changePin() {
   pinUpdateDots('');
   pinSetSubtitle('Buat PIN baru', '#94a3b8');
   document.getElementById('pin-error').textContent = '';
-  document.getElementById('pin-forgot-btn').style.display = 'none';
+  document.getElementById('pin-forgot-btn').style.display = 'flex';
   const ps = document.getElementById('pin-screen');
-  ps.style.display = 'flex'; ps.style.opacity = '0';
+  ps.style.opacity = '0'; ps.style.transition = 'none';
+  ps.style.display = 'flex';
   document.getElementById('app').style.display = 'none';
-  setTimeout(() => { ps.style.opacity = '1'; ps.style.transition = 'opacity .2s ease'; }, 10);
+  setTimeout(() => { ps.style.transition = 'opacity .2s ease'; ps.style.opacity = '1'; }, 10);
 }
 
 // Keyboard support
@@ -2940,33 +3239,39 @@ document.addEventListener('keydown', e => {
 });
 
 // =====================================================
+// =====================================================
+// =====================================================
 // INIT
 // =====================================================
 (async function() {
-  // Loading screen
+  // Tampilkan loading dulu
   document.getElementById('pin-screen').style.display = 'none';
   document.getElementById('app').style.display = 'none';
 
+  // Loading indicator sementara
   const loader = document.createElement('div');
+  loader.id = 'loading-screen';
   loader.style.cssText = 'position:fixed;inset:0;background:#0f1117;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99998;';
   loader.innerHTML = `
-    <img src="https://i.ibb.co/VXq0RWQ/ur-pin-large-front-square-600x600-removebg-preview.png" width="64" height="64" style="border-radius:16px;margin-bottom:16px;opacity:.8">
-    <div style="color:#6366f1;font-size:.9rem;font-weight:600">Memuat data...</div>
+    <img src="https://i.ibb.co/Ngtx8c19/urso-cora-o.gif" width="64" height="64" style="border-radius:16px;margin-bottom:16px;opacity:.8">
+    <div style="color:#6366f1;font-size:.9rem;font-weight:600;letter-spacing:.5px">Memuat data...</div>
+    <div style="color:#64748b;font-size:.75rem;margin-top:6px">Menghubungkan ke server</div>
   `;
   document.body.appendChild(loader);
 
-  // Load data & PIN dari Supabase
+  // Load data dari Supabase DULU
   await initDB();
   const remotePin = await pinGetStoredRemote();
   pinRemote = remotePin || '';
-  // TIDAK sync ke localStorage — selalu cek Supabase setiap buka app
-
+  // TIDAK simpan ke localStorage — selalu cek Supabase setiap buka app
   populateQuickAdd();
   setQACurrency('THB');
   renderDashboard();
+
+  // Hapus loading screen
   loader.remove();
 
-  // Tampilkan PIN screen
+  // Baru tampilkan PIN screen
   const ps = document.getElementById('pin-screen');
   ps.style.display = 'flex';
   document.getElementById('app').style.display = 'none';
@@ -2976,8 +3281,7 @@ document.addEventListener('keydown', e => {
   pinSetSubtitle('Masukkan PIN untuk masuk', '#64748b');
 })();
 
-
-// Patch renderSettings supaya muncul card PIN
+// Inject card PIN ke Settings
 const _baseRenderSettings = renderSettings;
 renderSettings = function() {
   _baseRenderSettings();
@@ -2991,7 +3295,7 @@ renderSettings = function() {
       <div class="setting-row">
         <div>
           <div class="setting-label">Ganti PIN</div>
-          <div class="setting-desc">Ubah PIN 4 digit untuk masuk</div>
+          <div class="setting-desc">Ubah PIN 4 digit untuk masuk ke aplikasi</div>
         </div>
         <button class="btn btn-secondary btn-sm" onclick="changePin()">Ganti PIN</button>
       </div>
