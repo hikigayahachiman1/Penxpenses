@@ -3190,6 +3190,77 @@ function pinShowError(msg) {
   setTimeout(() => { el.textContent = ''; }, 1600);
 }
 
+
+const AUTO_LOCK_MS = 60 * 1000;
+let autoLockTimer = null;
+let autoLockBound = false;
+
+function pinLockNow(reason = 'Masukkan PIN untuk masuk') {
+  const ps = document.getElementById('pin-screen');
+  const app = document.getElementById('app');
+  if (!ps || !app) return;
+
+  if (autoLockTimer) {
+    clearTimeout(autoLockTimer);
+    autoLockTimer = null;
+  }
+
+  pinBuffer = '';
+  pinUpdateDots('');
+  document.getElementById('pin-error').textContent = '';
+  pinMode = 'check';
+  pinSetSubtitle(reason, '#64748b');
+
+  app.style.display = 'none';
+  ps.style.display = 'flex';
+  ps.style.opacity = '1';
+  ps.style.transition = 'opacity .2s ease';
+}
+
+function resetAutoLockTimer() {
+  if (document.hidden) return;
+  if (document.getElementById('pin-screen')?.style.display !== 'none') return;
+
+  if (autoLockTimer) clearTimeout(autoLockTimer);
+  autoLockTimer = setTimeout(() => {
+    pinLockNow('🔒 Terkunci otomatis karena tidak ada aktivitas 1 menit');
+  }, AUTO_LOCK_MS);
+}
+
+function bindAutoLock() {
+  if (autoLockBound) return;
+  autoLockBound = true;
+
+  const activityEvents = ['click', 'keydown', 'mousemove', 'mousedown', 'touchstart', 'scroll'];
+  activityEvents.forEach(evt => {
+    document.addEventListener(evt, () => {
+      if (document.getElementById('pin-screen')?.style.display === 'none') {
+        resetAutoLockTimer();
+      }
+    }, { passive: true });
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      pinLockNow('🔒 Terkunci karena tab / browser ditinggal');
+    } else if (document.getElementById('pin-screen')?.style.display === 'none') {
+      resetAutoLockTimer();
+    }
+  });
+
+  window.addEventListener('blur', () => {
+    if (document.getElementById('pin-screen')?.style.display === 'none') {
+      pinLockNow('🔒 Terkunci karena jendela tidak aktif');
+    }
+  });
+
+  window.addEventListener('focus', () => {
+    if (document.getElementById('pin-screen')?.style.display === 'none') {
+      resetAutoLockTimer();
+    }
+  });
+}
+
 function pinUnlock() {
   document.querySelectorAll('.pin-dot').forEach(d => {
     d.style.background = '#22c55e'; d.style.borderColor = '#22c55e';
@@ -3201,6 +3272,7 @@ function pinUnlock() {
     setTimeout(() => {
       ps.style.display = 'none';
       document.getElementById('app').style.display = '';
+      resetAutoLockTimer();
       setTimeout(() => document.getElementById('qa-amount').focus(), 100);
     }, 250);
   }, 280);
@@ -3367,6 +3439,7 @@ document.addEventListener('keydown', e => {
 
   pinMode = 'check';
   pinSetSubtitle('Masukkan PIN untuk masuk', '#64748b');
+  bindAutoLock();
 })();
 
 
@@ -3461,6 +3534,7 @@ document.addEventListener('keydown', function(e) {
   }
 });
 </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
